@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/LeaveManagementSystem.iml" filepath="$PROJECT_DIR$/.idea/LeaveManagementSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lmsApplication.main.iml" filepath="$PROJECT_DIR$/.idea/modules/lmsApplication.main.iml" />
     </modules>
   </component>
 </project>
