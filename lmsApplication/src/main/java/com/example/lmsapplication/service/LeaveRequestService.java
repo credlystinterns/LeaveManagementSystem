@@ -1,4 +1,5 @@
 package com.example.lmsapplication.service;
+import com.example.lmsapplication.requisites.LeaveRequest;
 
 import com.example.lmsapplication.tables.AuditDetails;
 import com.example.lmsapplication.dto.AuditRepository;
@@ -30,100 +31,117 @@ public class LeaveRequestService {
    @Autowired
    AuditRepository auditRepository;
 
-   public Response applyLeave(Leaves leaverequest)  {
-       Integer employee_Id = leaverequest.getEmployee();
-       Employee emp = getEmployeeById(employee_Id);
+    public Response applyLeave(Integer employeeId, LeaveRequest leaverequest) {
 
-       String leave_type =  leaverequest.getLeaveType();
-       Integer casual_leave = getCasualLeavesCount(emp);
-       Integer sick_leave = getSickLeavesCount(emp);
-       Integer wfh_leave = getWFHLeavesCount(emp);
+        Employee emp = getEmployeeById(employeeId);
 
-       if (leaverequest.getStart_date().after(leaverequest.getEnd_date())) {
-           return new Response(false, "Start date cannot be after end date");
-       }
+        String leave_type = leaverequest.getLeaveType();
+        Integer casual_leave = getCasualLeavesCount(emp);
+        Integer sick_leave = getSickLeavesCount(emp);
+        Integer wfh_leave = getWFHLeavesCount(emp);
 
-       // Default Status
-       leaverequest.setStatus("Pending");
+        if (leaverequest.getStartDate().after(leaverequest.getEndDate())) {
+            return new Response(false, "Start date cannot be after end date");
+        }
 
-       // Calculation of Leave Days
+        long diffInMillis = leaverequest.getEndDate().getTime()
+                - leaverequest.getStartDate().getTime();
+        int leaveDays = (int) (diffInMillis / (1000 * 60 * 60 * 24)) + 1;
 
-       long diffInMillis = leaverequest.getEnd_date().getTime()
-               - leaverequest.getStart_date().getTime();
+        if (leave_type.equalsIgnoreCase("casual")) {
 
-       int leaveDays = (int) (diffInMillis / (1000 * 60 * 60 * 24)) + 1;
-
-
-
-
-       if(leave_type.equalsIgnoreCase("casual") ){
-
-            if(casual_leave >= leaveDays){
+            if (casual_leave >= leaveDays) {
                 casual_leave = casual_leave - leaveDays;
                 emp.setCasualLeave(casual_leave);
                 employeeRepo.save(emp);
-           Leaves savedLeave  =    leaveRequestRepository.save(leaverequest);
 
-                saveAuditForApply(savedLeave.getId(), employee_Id);
+                // Map request -> Leaves entity with status "Pending"
+                Leaves toSave = new Leaves();
+                toSave.setEmployee(employeeId);
+                toSave.setLeaveType(leave_type);
+                toSave.setStatus("Pending");
+                toSave.setStart_date(leaverequest.getStartDate());
+                toSave.setEnd_date(leaverequest.getEndDate());
 
+                Leaves savedLeave = leaveRequestRepository.save(toSave);
 
-                return new Response(true , "Casual Leave Applied Successfully , Remaining Casual Leaves are : "+casual_leave) ;
+                saveAuditForApply(savedLeave.getId(), employeeId);
 
-            }else{
-                return new Response(false, "Your Casual Leave limit is Exceeded") ;
+                return new Response(true, "Casual Leave Applied Successfully , Remaining Casual Leaves are : " + casual_leave);
+
+            } else {
+                return new Response(false, "Your Casual Leave limit is Exceeded");
             }
-       }else if(leave_type.equalsIgnoreCase("wfh")){
-           if(wfh_leave >= leaveDays){
-               wfh_leave  = wfh_leave -  leaveDays;
-               emp.setWfhLeave(wfh_leave);
-               employeeRepo.save(emp);
-               Leaves savedLeave  =    leaveRequestRepository.save(leaverequest);
 
-               saveAuditForApply(savedLeave.getId(), employee_Id);
+        } else if (leave_type.equalsIgnoreCase("wfh")) {
 
+            if (wfh_leave >= leaveDays) {
+                wfh_leave = wfh_leave - leaveDays;
+                emp.setWfhLeave(wfh_leave);
+                employeeRepo.save(emp);
 
+                Leaves toSave = new Leaves();
+                toSave.setEmployee(employeeId);
+                toSave.setLeaveType(leave_type);
+                toSave.setStatus("Pending");
+                toSave.setStart_date(leaverequest.getStartDate());
+                toSave.setEnd_date(leaverequest.getEndDate());
 
-               return new Response(true , "Work From Home Leave Applied Successfully , Remaining Work From Home Leaves are : "+wfh_leave) ;
+                Leaves savedLeave = leaveRequestRepository.save(toSave);
 
-           }else{
-               return new Response(false , "Your Work From Home Leave limit is Exceeded");
-           }
-       }else if(leave_type.equalsIgnoreCase("sick")){
-           if(sick_leave >= leaveDays){
-               sick_leave = sick_leave -   leaveDays;
-               emp.setSickLeave(sick_leave);
-               employeeRepo.save(emp);
-               Leaves savedLeave  =  leaveRequestRepository.save(leaverequest);
+                saveAuditForApply(savedLeave.getId(), employeeId);
 
-               saveAuditForApply(savedLeave.getId(), employee_Id);
+                return new Response(true, "Work From Home Leave Applied Successfully , Remaining Work From Home Leaves are : " + wfh_leave);
 
+            } else {
+                return new Response(false, "Your Work From Home Leave limit is Exceeded");
+            }
 
+        } else if (leave_type.equalsIgnoreCase("sick")) {
 
-               return new Response(true,"Your Sick Leave is Applied Successfully , Remaining Sick Leave Limit are : " + sick_leave) ;
-           }else{
-               return new Response(false , "Your Sick  Leave limit is Exceeded");
-           }
-       }else{
-           return new Response(false ,"Invalid Leave Type");
-       }
+            if (sick_leave >= leaveDays) {
+                sick_leave = sick_leave - leaveDays;
+                emp.setSickLeave(sick_leave);
+                employeeRepo.save(emp);
 
+                Leaves toSave = new Leaves();
+                toSave.setEmployee(employeeId);
+                toSave.setLeaveType(leave_type);
+                toSave.setStatus("Pending");
+                toSave.setStart_date(leaverequest.getStartDate());
+                toSave.setEnd_date(leaverequest.getEndDate());
 
-   }
+                Leaves savedLeave = leaveRequestRepository.save(toSave);
+
+                saveAuditForApply(savedLeave.getId(), employeeId);
+
+                return new Response(true, "Your Sick Leave is Applied Successfully , Remaining Sick Leave Limit are : " + sick_leave);
+
+            } else {
+                return new Response(false, "Your Sick  Leave limit is Exceeded");
+            }
+
+        } else {
+            return new Response(false, "Invalid Leave Type");
+        }
+    }
+
     public Employee getEmployeeById(Integer employee_Id) {
-
         return employeeRepo.findById(employee_Id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
     }
-   public Integer getCasualLeavesCount(Employee employee){
-       return employee.getCasualLeave() ;
-   }
-   public Integer getSickLeavesCount(Employee employee){
-       return employee.getSickLeave();
-   }
-   public Integer getWFHLeavesCount(Employee employee){
-       return employee.getWfhLeave();
-   }
 
+    public Integer getCasualLeavesCount(Employee employee){
+        return employee.getCasualLeave();
+    }
+
+    public Integer getSickLeavesCount(Employee employee){
+        return employee.getSickLeave();
+    }
+
+    public Integer getWFHLeavesCount(Employee employee){
+        return employee.getWfhLeave();
+    }
 
 // leave history
    public List<Leaves> getLeaves(Integer employee_Id){

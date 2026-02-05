@@ -16,12 +16,11 @@ public enum Requests {
     APPLY_LEAVE(
             "apply_leave",
             "POST",
-            "/leave_requests",
+            "/apply_leave",
             Map.of(
-                    "type", Map.of("type", "string", "enum", List.of("casual", "sick", "wfh")),
+                    "type", Map.of("type", "string", "string", List.of("casual", "sick", "wfh")),
                     "startDate", Map.of("type", "string", "format", "date"),
-                    "endDate", Map.of("type", "string", "format", "date"),
-                    "reason", Map.of("type", "string")
+                    "endDate", Map.of("type", "string", "format", "date")
             )
     ),
     VIEW_HISTORY(

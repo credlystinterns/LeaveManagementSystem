@@ -1,5 +1,6 @@
 package com.example.lmsapplication.controller;
 
+import com.example.lmsapplication.requisites.LeaveRequest;
 import com.example.lmsapplication.requisites.LeaveHistory;
 import com.example.lmsapplication.requisites.Requests;
 import com.example.lmsapplication.response.AcceptResponse;
@@ -61,9 +62,9 @@ public class MainController {
 
     @PostMapping("/apply_leave")
     public LeaveRequestService.Response applyLeave(@RequestHeader("Authorization") String authorization,
-                               @RequestBody Leaves leaveRequest) {
-        requireEmployee(authorization);
-        return leaveRequestService.applyLeave(leaveRequest);
+                               @RequestBody LeaveRequest leaveRequest) {
+        Employee employee  = requireEmployee(authorization);
+        return leaveRequestService.applyLeave(employee.getEmployeeId(),leaveRequest);
     }
 
     @GetMapping("/revoke_leave")
