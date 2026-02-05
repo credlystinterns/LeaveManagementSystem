@@ -12,7 +12,12 @@ import com.example.lmsapplication.tables.Employee;
 import com.example.lmsapplication.tables.Leaves;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,9 +49,16 @@ public class LeaveRequestService {
             return new Response(false, "Start date cannot be after end date");
         }
 
-        long diffInMillis = leaverequest.getEndDate().getTime()
-                - leaverequest.getStartDate().getTime();
-        int leaveDays = (int) (diffInMillis / (1000 * 60 * 60 * 24)) + 1;
+        // get start and end dates from your leaveRequest
+        Date start = leaverequest.getStartDate();
+        Date end = leaverequest.getEndDate();
+
+// convert to LocalDate (ignores time)
+        LocalDate startDate = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endDate = end.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+// calculate days between, inclusive
+        int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
         if (leave_type.equalsIgnoreCase("casual")) {
 
@@ -187,11 +199,16 @@ public class LeaveRequestService {
 
        // Calculation of Leave Days
 
-       long diffInMillis = leave.getEnd_date().getTime()
-               - leave.getStart_date().getTime();
+       // get start and end dates from your leaveRequest
+       Date start = leave.getStart_date();
+       Date end = leave.getEnd_date();
 
-       int leaveDays = (int) (diffInMillis / (1000 * 60 * 60 * 24)) + 1;
+// convert to LocalDate (ignores time)
+       LocalDate startDate = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+       LocalDate endDate = end.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
+// calculate days between, inclusive
+       int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
 
           Integer employee_Id = leave.getEmployee();
@@ -206,6 +223,7 @@ public class LeaveRequestService {
             casual_leave = casual_leave + leaveDays ;
            emp.setCasualLeave(casual_leave);
            leave.setStatus("Revoked");
+
            employeeRepo.save(emp);
            leaveRequestRepository.save(leave);
 
@@ -217,6 +235,7 @@ public class LeaveRequestService {
            wfh_leave = wfh_leave +  leaveDays;
            emp.setWfhLeave(wfh_leave);
            leave.setStatus("Revoked");
+
            employeeRepo.save(emp);
            leaveRequestRepository.save(leave);
 
@@ -227,6 +246,7 @@ public class LeaveRequestService {
            sick_leave = sick_leave +  leaveDays;
            emp.setSickLeave(sick_leave);
            leave.setStatus("Revoked");
+
            employeeRepo.save(emp);
            leaveRequestRepository.save(leave);
 

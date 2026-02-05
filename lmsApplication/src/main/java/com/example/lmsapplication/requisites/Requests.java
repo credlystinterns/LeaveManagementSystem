@@ -44,13 +44,13 @@ public enum Requests {
     ACCEPT(
             "accept request",
             "GET",
-            "/accept_request",
+            "/accept",
             null
     ),
     REJECT(
             "reject request",
             "GET",
-            "/reject_request",
+            "/reject",
             null
     );
 
