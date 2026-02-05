@@ -5,6 +5,7 @@ import com.example.lmsapplication.dto.SessionRepo;
 import com.example.lmsapplication.requisites.LoginBody;
 import com.example.lmsapplication.requisites.PasswordHasher;
 import com.example.lmsapplication.tables.Session;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.random.RandomGenerator;
@@ -22,6 +23,7 @@ public class LoginService {
     }
 
     public record AuthResult(boolean success, String message, String token) {}
+    @Transactional
 
     public AuthResult authorize(LoginBody loginBody) {
         return employeeRepo.findByEmail(loginBody.getEmail())

@@ -1,4 +1,4 @@
-package com.example.lmsapplication.audit;
+package com.example.lmsapplication.tables;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +15,7 @@ public class AuditDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer leave_Id; // leave_id link
+    private Integer leave; // leave_id link
     private Integer createdById;
     private LocalDateTime createdAt;
 

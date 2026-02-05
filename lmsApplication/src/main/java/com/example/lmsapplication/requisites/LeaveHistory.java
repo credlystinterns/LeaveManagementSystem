@@ -1,11 +1,13 @@
 package com.example.lmsapplication.requisites;
 
+import com.example.lmsapplication.tables.Leaves;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,5 +15,5 @@ import java.util.ArrayList;
 @Builder
 public class LeaveHistory {
     private Integer employeeId;
-    private List<Leaves> allLeaves = new ArrayList<Leaves>();
+    private List<Leaves> allLeaves ;
 }

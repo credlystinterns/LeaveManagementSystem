@@ -1,16 +1,20 @@
 package com.example.lmsapplication.service;
 
-import com.example.lmsapplication.audit.AuditDetails;
+import com.example.lmsapplication.tables.AuditDetails;
 import com.example.lmsapplication.dto.AuditRepository;
+import com.example.lmsapplication.dto.EmployeeRepo;
 import com.example.lmsapplication.dto.LeaveRequestRepository;
+import com.example.lmsapplication.response.AcceptResponse;
+import com.example.lmsapplication.response.RejectResponse;
 import com.example.lmsapplication.response.RevokeResponse;
+import com.example.lmsapplication.tables.Employee;
 import com.example.lmsapplication.tables.Leaves;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LeaveRequestService {
@@ -22,12 +26,12 @@ public class LeaveRequestService {
    @Autowired
    LeaveRequestRepository leaveRequestRepository;
     @Autowired
-   EmployeeRepo employeeRepo ;
+    EmployeeRepo employeeRepo ;
    @Autowired
    AuditRepository auditRepository;
 
    public Response applyLeave(Leaves leaverequest)  {
-       Integer employee_Id = leaverequest.getEmployee_Id();
+       Integer employee_Id = leaverequest.getEmployee();
        Employee emp = getEmployeeById(employee_Id);
 
        String leave_type =  leaverequest.getLeaveType();
@@ -60,7 +64,7 @@ public class LeaveRequestService {
                 employeeRepo.save(emp);
            Leaves savedLeave  =    leaveRequestRepository.save(leaverequest);
 
-                saveAuditForApply(savedLeave.getLeave_Id(), employee_Id);
+                saveAuditForApply(savedLeave.getId(), employee_Id);
 
 
                 return new Response(true , "Casual Leave Applied Successfully , Remaining Casual Leaves are : "+casual_leave) ;
@@ -75,7 +79,7 @@ public class LeaveRequestService {
                employeeRepo.save(emp);
                Leaves savedLeave  =    leaveRequestRepository.save(leaverequest);
 
-               saveAuditForApply(savedLeave.getLeave_Id(), employee_Id);
+               saveAuditForApply(savedLeave.getId(), employee_Id);
 
 
 
@@ -91,7 +95,7 @@ public class LeaveRequestService {
                employeeRepo.save(emp);
                Leaves savedLeave  =  leaveRequestRepository.save(leaverequest);
 
-               saveAuditForApply(savedLeave.getLeave_Id(), employee_Id);
+               saveAuditForApply(savedLeave.getId(), employee_Id);
 
 
 
@@ -107,7 +111,7 @@ public class LeaveRequestService {
    }
     public Employee getEmployeeById(Integer employee_Id) {
 
-        return EmployeeRepo.findById(employee_Id)
+        return employeeRepo.findById(employee_Id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
     }
    public Integer getCasualLeavesCount(Employee employee){
@@ -123,14 +127,14 @@ public class LeaveRequestService {
 
 // leave history
    public List<Leaves> getLeaves(Integer employee_Id){
-       List<Leaves> leaves = leaveRequestRepository.findLeavesByEmployee_Id(employee_Id);
+       List<Leaves> leaves = leaveRequestRepository.findLeavesByEmployee(employee_Id);
         return leaves;
    }
 
    public RevokeResponse revokeLeave(Integer employee_Id){
 
 
-       List<Leaves>employee_Leaves =  leaveRequestRepository.findLeavesByEmployee_Id(employee_Id);
+       List<Leaves>employee_Leaves =  leaveRequestRepository.findLeavesByEmployee(employee_Id);
 
        if (employee_Leaves.isEmpty()) {
            throw new RuntimeException("No leaves found for employee id: " + employee_Id);
@@ -140,6 +144,7 @@ public class LeaveRequestService {
 
        response.setKey("Revoke");
        response.setHref("/revoke");
+       response.setMethod("PUT");
        response.setLeaves(employee_Leaves);
 
        return response;
@@ -171,7 +176,7 @@ public class LeaveRequestService {
 
 
 
-          Integer employee_Id = leave.getEmployee_Id();
+          Integer employee_Id = leave.getEmployee();
 
           Employee emp = getEmployeeById(employee_Id);
 
@@ -220,12 +225,80 @@ public class LeaveRequestService {
 
    }
 
+    public List<Employee> getReportees(int manager_id) {
+        return employeeRepo.findEmployeesByManagerId(manager_id);
+    }
+
+    public AcceptResponse accepted(int manager_id){
+
+        AcceptResponse acceptResponse = new AcceptResponse();
+        acceptResponse.setKey("Accepted");
+        acceptResponse.setHref("/accept/{leave_id}");
+        List<Employee> ems = employeeRepo.findEmployeesByManagerId(manager_id);
+        acceptResponse.setLeaves(ems.stream()
+                .map(x -> leaveRequestRepository.findLeavesByEmployee(x.getEmployeeId()))
+                .flatMap(List::stream ).collect(Collectors.toList()) );
+        return acceptResponse;
+    }
+
+    public Response acceptance(int leave_id, int manager_id){
+        Optional<Leaves> leaves = leaveRequestRepository.findById(leave_id);
+        if(leaves.isPresent()){
+            leaves.get().setStatus("Approved");
+            saveAuditForUpdate(leave_id,
+                    manager_id,
+                    "Approved");
+            return new Response(true,"Accepted");
+        }
+        else{
+            return new Response(false,"Leave_id doesn't exist");
+        }
+
+    }
+
+    public RejectResponse rejected(int manager_id){
+
+        RejectResponse rejectResponse = new RejectResponse();
+        rejectResponse.setKey("Rejected");
+        rejectResponse.setHref("/reject/{leave_id}");
+        List<Employee> ems = employeeRepo.findEmployeesByManagerId(manager_id);
+        rejectResponse.setLeaves(ems.stream()
+                .map(x -> leaveRequestRepository.findLeavesByEmployee(x.getEmployeeId()))
+                .flatMap(List::stream ).collect(Collectors.toList()) ) ;
+        return rejectResponse;
+    }
+
+    public Response rejectance(int leave_id, int manager_id){
+        Optional<Leaves> leaves = leaveRequestRepository.findById(leave_id);
+        if(leaves.isPresent()){
+            leaves.get().setStatus("Rejected");
+            saveAuditForUpdate(leave_id,
+                    manager_id,
+                    "Rejected");
+            return new Response(true,"Rejected");
+        }
+        else{
+            return new Response(false,"Leave_id doesn't exist");
+        }
+
+    }
+
+
+    public List<Leaves> getLeaves(int employee_id){
+        return leaveRequestRepository.findLeavesByEmployee(employee_id);
+    }
+
+
+
+
+
+
     // Audit when leave applied
     private void saveAuditForApply(Integer leave_Id, Integer employee_Id) {
 
         AuditDetails audit = new AuditDetails();
 
-        audit.setLeave_Id(leave_Id);
+        audit.setLeave(leave_Id);
         audit.setCreatedById(employee_Id);
         audit.setCreatedAt(LocalDateTime.now());
 
@@ -240,7 +313,7 @@ public class LeaveRequestService {
                                     Integer updatedById,
                                     String action) {
 
-        AuditDetails audit = auditRepository.findByLeave_Id(leave_Id);
+        AuditDetails audit = auditRepository.findByLeave(leave_Id);
 
         if (audit == null) {
             throw new RuntimeException("Audit record not found for leave id: " + leave_Id);

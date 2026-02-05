@@ -13,6 +13,7 @@ import java.util.List;
 public class RevokeResponse {
    String key;
    String href;
+   String method;
    List<Leaves> leaves;
 
 

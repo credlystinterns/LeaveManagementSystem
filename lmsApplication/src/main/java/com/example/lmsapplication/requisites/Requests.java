@@ -1,6 +1,7 @@
 package com.example.lmsapplication.requisites;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,6 +10,7 @@ import java.util.Map;
 
 @Getter
 @AllArgsConstructor
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Requests {
 
     APPLY_LEAVE(
@@ -16,7 +18,7 @@ public enum Requests {
             "POST",
             "/leave_requests",
             Map.of(
-                    "type", Map.of("type", "string", "enum", List.of("casual", "sick", "earned")),
+                    "type", Map.of("type", "string", "enum", List.of("casual", "sick", "wfh")),
                     "startDate", Map.of("type", "string", "format", "date"),
                     "endDate", Map.of("type", "string", "format", "date"),
                     "reason", Map.of("type", "string")
@@ -56,7 +58,7 @@ public enum Requests {
     private final String key;
     private final String method;
     private final String href;
-    private final Map<String,Object>actions;
+    private final Map<String,Object>body;
 
 
 

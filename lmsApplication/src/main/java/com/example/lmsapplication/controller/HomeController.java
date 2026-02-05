@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping("/")
 public class HomeController {
     private final LoginService loginService;
     private final LogoutService logoutService;
@@ -28,10 +28,11 @@ public class HomeController {
         this.logoutService = logoutService;
         this.signUpService = signUpService;
     }
-    @GetMapping
+    @GetMapping("/home")
     public HomeResponse homePage(){
         return new HomeResponse(List.of(HomeResponse.Abc.values()));
     }
+
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginBody loginBody){
 

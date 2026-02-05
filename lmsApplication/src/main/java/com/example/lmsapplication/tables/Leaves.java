@@ -17,15 +17,17 @@ public class Leaves {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "leave_id")
-    private Integer leave_Id;
+    private Integer id;
     @Column(name = "leave_type")
     private String leaveType;
     @Column(name = "leave_status")
     private String status;
     @Column(name = "employee_id")
-    private Integer employee_Id ;
+    private Integer employee ;
     @Column(name = "start_date")
     private Date start_date;
+
+
     @Column(name = "end_date")
     private Date end_date;
 
