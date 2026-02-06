@@ -41,7 +41,7 @@ public class MainController {
         return employee;
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public MainResponse res(@RequestHeader("Authorization") String authorization) {
         Employee employee = requireEmployee(authorization);
         return new MainResponse(
