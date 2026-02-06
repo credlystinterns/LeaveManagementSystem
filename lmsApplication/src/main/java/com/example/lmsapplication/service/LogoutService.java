@@ -2,15 +2,18 @@ package com.example.lmsapplication.service;
 
 
 import com.example.lmsapplication.dto.SessionRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LogoutService {
 
     SessionRepo sessionRepo;
+
     public LogoutService(SessionRepo sessionRepo){
         this.sessionRepo = sessionRepo;
     }
+    @Transactional
     public SignUpService.Obj logout(String token){
 
         return sessionRepo.deleteSessionBySessionToken(token) >0

@@ -19,8 +19,8 @@ public enum Requests {
             "/apply_leave",
             Map.of(
                     "type", Map.of("type", "string", "string", List.of("casual", "sick", "wfh")),
-                    "startDate", Map.of("type", "string", "format", "date"),
-                    "endDate", Map.of("type", "string", "format", "date")
+                    "startDate", Map.of("type", "date", "format", "YYYY-MM-DD"),
+                    "endDate", Map.of("type", "date", "format", "YYYY-MM-DD")
             )
     ),
     VIEW_HISTORY(

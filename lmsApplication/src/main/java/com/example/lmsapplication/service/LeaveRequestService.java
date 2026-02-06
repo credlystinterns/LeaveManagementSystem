@@ -45,6 +45,7 @@ public class LeaveRequestService {
         Integer sick_leave = getSickLeavesCount(emp);
         Integer wfh_leave = getWFHLeavesCount(emp);
 
+
         if (leaverequest.getStartDate().after(leaverequest.getEndDate())) {
             return new Response(false, "Start date cannot be after end date");
         }
