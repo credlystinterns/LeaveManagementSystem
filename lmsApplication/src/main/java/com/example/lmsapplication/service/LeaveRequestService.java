@@ -307,19 +307,52 @@ public class LeaveRequestService {
         return rejectResponse;
     }
 
-    public Response rejectance(int leave_id, int manager_id){
-        Optional<Leaves> leaves = leaveRequestRepository.findById(leave_id);
-        if(leaves.isPresent()){
-            leaves.get().setStatus("Rejected");
-            saveAuditForUpdate(leave_id,
-                    manager_id,
-                    "Rejected");
-            return new Response(true,"Rejected");
-        }
-        else{
-            return new Response(false,"Leave_id doesn't exist");
+    public Response rejectance(int leave_id, int manager_id) {
+
+        Optional<Leaves> leaveOpt = leaveRequestRepository.findById(leave_id);
+
+        if (leaveOpt.isPresent()) {
+
+            Leaves leave = leaveOpt.get();
+            leave.setStatus("Rejected");
+
+            Employee employee = employeeRepo.findById(leave.getEmployee())
+                    .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+            Date start = leave.getStart_date();
+            Date end = leave.getEnd_date();
+
+            LocalDate startDate = start.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            LocalDate endDate = end.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
+            String type = leave.getLeaveType();
+
+            if (type.equalsIgnoreCase("sick")) {
+                employee.setSickLeave(employee.getSickLeave() + leaveDays);
+            }
+            else if (type.equalsIgnoreCase("casual")) {
+                employee.setCasualLeave(employee.getCasualLeave() + leaveDays);
+            }
+            else if (type.equalsIgnoreCase("wfh")) {
+                employee.setWfhLeave(employee.getWfhLeave() + leaveDays);
+            }
+
+            employeeRepo.save(employee);
+            leaveRequestRepository.save(leave);
+
+            saveAuditForUpdate(leave_id, manager_id, "Rejected");
+
+            return new Response(true, "Rejected");
         }
 
+        return new Response(false, "Leave_id doesn't exist");
     }
 
 
