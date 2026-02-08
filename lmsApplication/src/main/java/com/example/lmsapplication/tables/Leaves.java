@@ -1,10 +1,12 @@
 package com.example.lmsapplication.tables;
 
+import com.example.lmsapplication.enums.LeaveStatus;
+import com.example.lmsapplication.enums.LeaveTypes;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
+
 
 
 @Data
@@ -20,16 +22,19 @@ public class Leaves {
     @Column(name = "leave_id")
     private Integer id;
     @Column(name = "leave_type")
-    private String leaveType;
+    @Enumerated(EnumType.STRING)
+    private LeaveTypes leaveType;
     @Column(name = "leave_status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private LeaveStatus status;
     @Column(name = "employee_id")
     private Integer employee ;
+
     @Column(name = "start_date")
-    private Date start_date;
+    private LocalDate startDate;
 
 
     @Column(name = "end_date")
-    private Date end_date;
+    private LocalDate endDate;
 
 }

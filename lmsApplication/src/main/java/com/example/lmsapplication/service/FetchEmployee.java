@@ -20,10 +20,10 @@ public class FetchEmployee {
 
 
     public Employee getEmployee(String token){
-        return sessionRepo.findSessionBySessionToken(token)
-                .map(Session::getEmployeeId)
-                .flatMap(x -> employeeRepo.findById(x))
-                .orElse(null);
+        Session session =  sessionRepo.findSessionBySessionToken(token)
+                .orElseThrow(() -> new RuntimeException(""));
 
+       return  employeeRepo.findById(session.getEmployeeId())
+               .orElseThrow(() -> new RuntimeException(""));
     }
 }

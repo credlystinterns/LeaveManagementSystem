@@ -21,6 +21,19 @@ public class AuditDetails {
     private String updatedAction;
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        if (this.updatedAction == null) {
+            this.updatedAction = "Pending";
+        }
+    }
 
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
 
+    }
 }

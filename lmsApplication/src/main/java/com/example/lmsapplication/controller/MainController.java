@@ -34,11 +34,8 @@ public class MainController {
         if (authorization == null || authorization.isBlank()) {
             throw new RuntimeException("Authorization header missing");
         }
-        Employee employee = fetchEmployee.getEmployee(authorization);
-        if (employee == null) {
-            throw new RuntimeException("Invalid or expired token");
-        }
-        return employee;
+        return fetchEmployee.getEmployee(authorization);
+
     }
 
     @GetMapping("")
@@ -93,7 +90,7 @@ public class MainController {
         return reportees.stream()
                 .map(emp -> leaveRequestService.getLeaves(emp.getEmployeeId()))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -103,11 +100,11 @@ public class MainController {
         return leaveRequestService.accepted(manager.getEmployeeId());
     }
 
-    @PutMapping("/accept/{leave_id}")
+    @PutMapping("/accept/{leaveId}")
     public LeaveRequestService.Response acceptance(@RequestHeader("Authorization") String authorization,
-                                                   @PathVariable Integer leave_id) {
+                                                   @PathVariable Integer leaveId) {
         Employee employee  = requireEmployee(authorization);
-        return leaveRequestService.acceptance(leave_id, employee.getEmployeeId());
+        return leaveRequestService.acceptance(leaveId, employee.getEmployeeId());
     }
 
     @GetMapping("/reject")
