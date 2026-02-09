@@ -1,5 +1,6 @@
 package com.example.lmsapplication.response;
 
+import com.example.lmsapplication.requisites.AvailableAction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,12 +12,7 @@ public class LoginResponse{
     private String key;
     private String href;
     private String token;
-
-    public record AvailableAction(
-            String key,
-            String href,
-            String method
-    ){}
+    s
 
     private List<AvailableAction> availableActionList;
 }

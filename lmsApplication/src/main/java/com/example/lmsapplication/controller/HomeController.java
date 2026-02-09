@@ -1,14 +1,17 @@
 package com.example.lmsapplication.controller;
+import com.example.lmsapplication.requisites.AvailableAction;
 import com.example.lmsapplication.requisites.LoginBody;
-import com.example.lmsapplication.requisites.Requests;
+
 import com.example.lmsapplication.requisites.SignUpBody;
 import com.example.lmsapplication.response.HomeResponse;
 import com.example.lmsapplication.response.LoginResponse;
 import com.example.lmsapplication.service.LoginService;
-import com.example.lmsapplication.requisites.PasswordHasher;
+
 import com.example.lmsapplication.service.LogoutService;
 import com.example.lmsapplication.service.SignUpService;
-import com.example.lmsapplication.tables.Session;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,7 +24,7 @@ public class HomeController {
     private final LogoutService logoutService;
     private final SignUpService signUpService;
 
-    PasswordHasher ps = new PasswordHasher();
+
 
     public HomeController(LoginService loginService,LogoutService logoutService,SignUpService signUpService){
         this.loginService = loginService;
@@ -39,14 +42,14 @@ public class HomeController {
         LoginService.AuthResult authResult  = loginService.authorize(loginBody);
 
 
-        LoginResponse.AvailableAction a1 = new LoginResponse.AvailableAction("main" ,"/leave_requests","GET");
-        List<LoginResponse.AvailableAction> li = new ArrayList<>();
+        AvailableAction a1 = new AvailableAction("main" ,"/leave_requests","GET");
+        List<AvailableAction> li = new ArrayList<>();
         li.add(a1);
 
 
         return authResult.success()
                 ? new LoginResponse("Successful","/leave_requests",authResult.token(),li)
-                : new LoginResponse(authResult.message(), "/","",new ArrayList<LoginResponse.AvailableAction>());
+                : new LoginResponse(authResult.message(), "/","",new ArrayList<>());
     }
 
     @DeleteMapping("/logout")
@@ -55,8 +58,10 @@ public class HomeController {
     }
 
     @PostMapping("/signup")
-    public SignUpService.Obj Signup(@RequestBody SignUpBody signUpBody){
-        return signUpService.createEmployee(signUpBody);
+    public ResponseEntity<SignUpService.Obj>signUp(@RequestBody SignUpBody signUpBody){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(signUpService.createEmployee(signUpBody));
     }
 
 

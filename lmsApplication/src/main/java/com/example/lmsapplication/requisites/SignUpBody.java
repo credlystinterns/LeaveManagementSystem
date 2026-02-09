@@ -3,6 +3,7 @@ package com.example.lmsapplication.requisites;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +23,10 @@ public class SignUpBody {
 
     @Size(min = 8 , message = "It should be of length 8.")
     @NotBlank
+    @NotNull
     private String password;
 
     @NotBlank
+    @NotNull
     private String managerName;
 }

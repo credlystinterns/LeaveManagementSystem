@@ -14,10 +14,9 @@ import com.example.lmsapplication.tables.Leaves;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/leave_requests")
+@RequestMapping("/leaveRequests")
 public class MainController {
 
     private final LeaveRequestService leaveRequestService;
@@ -31,11 +30,7 @@ public class MainController {
     }
 
     private Employee requireEmployee(String authorization) {
-        if (authorization == null || authorization.isBlank()) {
-            throw new RuntimeException("Authorization header missing");
-        }
         return fetchEmployee.getEmployee(authorization);
-
     }
 
     @GetMapping("")
@@ -47,7 +42,7 @@ public class MainController {
         );
     }
 
-    @GetMapping("/view_own_leavehistory")
+    @GetMapping("/history")
     public LeaveHistory getLeaveHistory(@RequestHeader("Authorization") String authorization) {
         Employee employee = requireEmployee(authorization);
         return LeaveHistory.builder()
@@ -57,27 +52,27 @@ public class MainController {
 
     }
 
-    @PostMapping("/apply_leave")
+    @PostMapping("/apply")
     public LeaveRequestService.Response applyLeave(@RequestHeader("Authorization") String authorization,
                                @RequestBody LeaveRequest leaveRequest) {
         Employee employee  = requireEmployee(authorization);
         return leaveRequestService.applyLeave(employee.getEmployeeId(),leaveRequest);
     }
 
-    @GetMapping("/revoke_leave")
+    @GetMapping("/revoke")
     public RevokeResponse revoked(@RequestHeader("Authorization") String authorization) {
         Employee employee = requireEmployee(authorization);
         return leaveRequestService.revokeLeave(employee.getEmployeeId());
     }
 
-    @PutMapping("/revoke_leave/{leave_id}")
+    @PutMapping("/revoke/{leaveId}")
     public LeaveRequestService.Response revokeLeave(@RequestHeader("Authorization") String authorization,
-                                @PathVariable Integer leave_id) {
+                                @PathVariable Integer leaveId) {
         requireEmployee(authorization);
-        return leaveRequestService.revokeCompletion(leave_id);
+        return leaveRequestService.revokeCompletion(leaveId);
     }
 
-    @GetMapping("/view_history_reportees")
+    @GetMapping("/reporteeHistory")
     public List<Leaves> getLeaveHistoryReportees(
             @RequestHeader("Authorization") String authorization) {
 
@@ -113,10 +108,10 @@ public class MainController {
         return leaveRequestService.rejected(manager.getEmployeeId());
     }
 
-    @PutMapping("/reject/{leave_id}")
+    @PutMapping("/reject/{leaveId}")
     public LeaveRequestService.Response rejection(@RequestHeader("Authorization") String authorization,
-                                                  @PathVariable Integer leave_id) {
+                                                  @PathVariable Integer leaveId) {
         Employee employee = requireEmployee(authorization);
-        return leaveRequestService.rejectance(leave_id,employee.getEmployeeId());
+        return leaveRequestService.rejectance(leaveId,employee.getEmployeeId());
     }
 }

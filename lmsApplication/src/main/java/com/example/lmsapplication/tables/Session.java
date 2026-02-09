@@ -16,8 +16,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "sessions")
 public class Session {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer sessionId;
     private Integer employeeId;
     private String  sessionToken;
 

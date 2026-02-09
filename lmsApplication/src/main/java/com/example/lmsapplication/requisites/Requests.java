@@ -14,9 +14,9 @@ import java.util.Map;
 public enum Requests {
 
     APPLY_LEAVE(
-            "apply_leave",
+            "apply",
             "POST",
-            "/apply_leave",
+            "/apply",
             Map.of(
                     "type", Map.of("type", "string", "string", List.of("casual", "sick", "wfh")),
                     "startDate", Map.of("type", "date", "format", "YYYY-MM-DD"),
@@ -26,19 +26,19 @@ public enum Requests {
     VIEW_HISTORY(
             "view_history",
             "GET",
-            "//history",
+            "/history",
             null
     ),
     REVOKE_LEAVE(
             "revoke leave",
             "PUT",
-            "/revoke_leave",
+            "/revoke",
             null
     ),
     LEAVE_HISTORY_OF_REPORTEES(
             "leave history of reportees",
             "PUT",
-            "/view_own_leavehistory",
+            "/reporteeHistory",
             null
     ),
     ACCEPT(

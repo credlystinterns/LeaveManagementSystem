@@ -13,7 +13,6 @@ public class LogoutService {
     public LogoutService(SessionRepo sessionRepo){
         this.sessionRepo = sessionRepo;
     }
-    @Transactional
     public SignUpService.Obj logout(String token){
 
         return sessionRepo.deleteSessionBySessionToken(token) >0

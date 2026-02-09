@@ -18,7 +18,7 @@ public class LoginBody {
     @NotBlank
     private String email;
 
-    @Size(min = 8 , message = "Password should be atleast of Length 8.")
+    @Size(min = 8 , message = "Password should be atLeast of Length 8.")
     @NotBlank
     private String password;
 }

@@ -23,7 +23,7 @@ public class HomeResponse {
                 "/login",
                 "POST",
                 Map.of(
-                    "schema" ,Map.of("email","String","password","String")
+                    "schema" ,Map.of("email","string","password","string")
                 )
         ),
         SIGNUP(
@@ -31,7 +31,7 @@ public class HomeResponse {
                 "/signup",
                 "POST",
                 Map.of(
-                       "schema",Map.of("name","String","email","String","password","String","managerName","String")
+                       "schema",Map.of("name","string","email","string","password","string","managerName","string")
                 )
         ),
         LOGOUT(

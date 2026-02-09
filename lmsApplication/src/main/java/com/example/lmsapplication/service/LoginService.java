@@ -23,7 +23,7 @@ public class LoginService {
     }
 
     public record AuthResult(boolean success, String message, String token) {}
-    @Transactional ()
+
     public AuthResult authorize(LoginBody loginBody) {
         return employeeRepo.findByEmail(loginBody.getEmail())
                 .map(emp -> {
@@ -31,7 +31,7 @@ public class LoginService {
                         return new AuthResult(false, "Invalid EmailId or Password", null);
                     }
 
-                    sessionRepo.deleteByEmployeeId((emp.getEmployeeId()));
+
 
                     String rawToken = loginBody.getEmail()
                             + System.currentTimeMillis()

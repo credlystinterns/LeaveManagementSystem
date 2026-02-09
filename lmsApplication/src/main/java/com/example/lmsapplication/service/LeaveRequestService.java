@@ -164,7 +164,7 @@ public class LeaveRequestService {
 
     public Employee getEmployeeById(Integer employeeId) {
         return employeeRepo.findById(employeeId)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee Not Found"));
+                .orElseThrow(() -> new EmployeeNotFoundException(employeeId));
     }
 
 
@@ -338,7 +338,7 @@ public class LeaveRequestService {
             leave.setStatus(LeaveStatus.REJECTED);
 
             Employee employee = employeeRepo.findById(leave.getEmployee())
-                    .orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
+                    .orElseThrow(() -> new EmployeeNotFoundException(leave.getEmployee()));
 
             LocalDate startDate = leave.getStartDate();
            LocalDate endDate = leave.getEndDate();
@@ -370,9 +370,7 @@ public class LeaveRequestService {
     }
 
 
-    public List<Leaves> getLeaves(int employeeId){
-        return leaveRequestRepository.findLeavesByEmployee(employeeId);
-    }
+
 
 
 

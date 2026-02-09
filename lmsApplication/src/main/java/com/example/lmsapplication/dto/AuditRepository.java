@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuditRepository extends JpaRepository<AuditDetails, Integer> {
-    AuditDetails findByLeave(Integer leave_Id);
+    AuditDetails findByLeave(Integer leaveId);
 }
