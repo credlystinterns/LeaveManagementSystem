@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.validation.annotation.Validated;
 
 
 import java.time.LocalDate;
@@ -15,10 +16,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class LeaveRequest {
 
 
-    @NotBlank(message = "Leave type is required")
+    @NotNull(message = "Leave type is required")
     private LeaveTypes leaveType;
 
 

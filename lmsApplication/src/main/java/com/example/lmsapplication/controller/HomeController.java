@@ -10,6 +10,7 @@ import com.example.lmsapplication.service.LoginService;
 import com.example.lmsapplication.service.LogoutService;
 import com.example.lmsapplication.service.SignUpService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +59,7 @@ public class HomeController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignUpService.Obj>signUp(@RequestBody SignUpBody signUpBody){
+    public ResponseEntity<SignUpService.Obj>signUp(@RequestBody @Valid SignUpBody signUpBody){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(signUpService.createEmployee(signUpBody));

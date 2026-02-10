@@ -27,7 +27,9 @@ public class Leaves {
     @Column(name = "leave_status")
     @Enumerated(EnumType.STRING)
     private LeaveStatus status;
+
     @Column(name = "employee_id")
+
     private Integer employee ;
 
     @Column(name = "start_date")

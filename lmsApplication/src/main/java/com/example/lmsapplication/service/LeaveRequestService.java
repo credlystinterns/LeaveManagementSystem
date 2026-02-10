@@ -18,15 +18,18 @@ import com.example.lmsapplication.tables.Leaves;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class LeaveRequestService {
+    private static final String STATUS_REJECTED = "Rejected";
+    private static final String STATUS_REVOKED = "Revoked";
+    private static final String REVOKE_SUCCESS_MESSAGE = "Revoked Successfully";
+
 
     public LeaveRequestService(LeaveRequestRepository leaveRequestRepository, EmployeeRepo employeeRepo, AuditRepository auditRepository) {
         this.leaveRequestRepository = leaveRequestRepository;
@@ -38,12 +41,12 @@ public class LeaveRequestService {
 
     }
 
-   final
-   LeaveRequestRepository leaveRequestRepository;
+    final
+    LeaveRequestRepository leaveRequestRepository;
     final
     EmployeeRepo employeeRepo ;
-   final
-   AuditRepository auditRepository;
+    final
+    AuditRepository auditRepository;
 
     public Response applyLeave(Integer employeeId, LeaveRequest leaverequest) {
 
@@ -169,110 +172,110 @@ public class LeaveRequestService {
 
 
 
-// leave history
-   public List<Leaves> getLeaves(Integer employeeId){
-     return leaveRequestRepository.findLeavesByEmployee(employeeId);
+    // leave history
+    public List<Leaves> getLeaves(Integer employeeId){
+        return leaveRequestRepository.findLeavesByEmployee(employeeId);
 
-   }
+    }
 
-   public RevokeResponse revokeLeave(Integer employeeId){
-
-
-       List<Leaves>employeeLeaves =  leaveRequestRepository.findLeavesByEmployee(employeeId);
-
-       if (employeeLeaves.isEmpty()) {
-           throw new LeavesNotFoundException("No leaves found for employee id: " + employeeId);
-       }
-
-       RevokeResponse response = new RevokeResponse();
-
-       response.setKey("Revoke");
-       response.setHref("/revoke");
-       response.setMethod("PUT");
-       response.setLeaves(employeeLeaves);
-
-       return response;
-   }
-
-   public Response revokeCompletion(Integer leaveId){
+    public RevokeResponse revokeLeave(Integer employeeId){
 
 
-       Optional<Leaves> employeeLeaves = leaveRequestRepository.findById(leaveId);
+        List<Leaves>employeeLeaves =  leaveRequestRepository.findLeavesByEmployee(employeeId);
 
-       Leaves leave = employeeLeaves.orElseThrow(() ->
-               new LeavesNotFoundException("Leave not found with id: " + leaveId)
-       );
+        if (employeeLeaves.isEmpty()) {
+            throw new LeavesNotFoundException("No leaves found for employee id: " + employeeId);
+        }
+
+        RevokeResponse response = new RevokeResponse();
+
+        response.setKey("Revoke");
+        response.setHref("/revoke");
+        response.setMethod("PUT");
+        response.setLeaves(employeeLeaves);
+
+        return response;
+    }
+
+    public Response revokeCompletion(Integer leaveId){
+
+
+        Optional<Leaves> employeeLeaves = leaveRequestRepository.findById(leaveId);
+
+        Leaves leave = employeeLeaves.orElseThrow(() ->
+                new LeavesNotFoundException("Leave not found with id: " + leaveId)
+        );
 
 
 
-          LeaveTypes leaveType = leave.getLeaveType();
-          LeaveStatus currStatus = leave.getStatus();
-          if(currStatus != LeaveStatus.APPROVED ){
-              return new Response(false, "Leave Status is Not Approved Yet , You can not Revoke");
-          }
+        LeaveTypes leaveType = leave.getLeaveType();
+        LeaveStatus currStatus = leave.getStatus();
+        if(currStatus != LeaveStatus.APPROVED ){
+            return new Response(false, "Leave Status is Not Approved Yet , You can not Revoke");
+        }
 
-       // Calculation of Leave Days
+        // Calculation of Leave Days
 
 
-       LocalDate startDate = leave.getStartDate();
-       LocalDate endDate = leave.getEndDate();
+        LocalDate startDate = leave.getStartDate();
+        LocalDate endDate = leave.getEndDate();
 
 
 // calculate days between, inclusive
-       int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
 
-          Integer employeeId = leave.getEmployee();
+        Integer employeeId = leave.getEmployee();
 
-          Employee emp = getEmployeeById(employeeId);
+        Employee emp = getEmployeeById(employeeId);
 
-       Integer casualLeave = emp.getCasualLeave();
-       Integer sickLeave = emp.getSickLeave();
-       Integer wfhLeave = emp.getWfhLeave();
+        Integer casualLeave = emp.getCasualLeave();
+        Integer sickLeave = emp.getSickLeave();
+        Integer wfhLeave = emp.getWfhLeave();
 
-       if(leaveType == LeaveTypes.CASUAL){
+        if(leaveType == LeaveTypes.CASUAL){
             casualLeave = casualLeave + leaveDays ;
-           emp.setCasualLeave(casualLeave);
-           leave.setStatus(LeaveStatus.REVOKED);
+            emp.setCasualLeave(casualLeave);
+            leave.setStatus(LeaveStatus.REVOKED);
 
-           employeeRepo.save(emp);
-           leaveRequestRepository.save(leave);
+            employeeRepo.save(emp);
+            leaveRequestRepository.save(leave);
 
-           saveAuditForUpdate(leaveId, employeeId, "Revoked");
+            saveAuditForUpdate(leaveId, employeeId, STATUS_REVOKED);
 
-           return new Response(true, "Revoked Successfully");
-       }
-       else if(leaveType == LeaveTypes.WFH){
-           wfhLeave = wfhLeave +  leaveDays;
-           emp.setWfhLeave(wfhLeave);
-           leave.setStatus(LeaveStatus.REVOKED);
+            return new Response(true, REVOKE_SUCCESS_MESSAGE);
+        }
+        else if(leaveType == LeaveTypes.WFH){
+            wfhLeave = wfhLeave +  leaveDays;
+            emp.setWfhLeave(wfhLeave);
+            leave.setStatus(LeaveStatus.REVOKED);
 
-           employeeRepo.save(emp);
-           leaveRequestRepository.save(leave);
+            employeeRepo.save(emp);
+            leaveRequestRepository.save(leave);
 
-           saveAuditForUpdate(leaveId, employeeId, "Revoked");
+            saveAuditForUpdate(leaveId, employeeId, STATUS_REVOKED);
 
-           return new Response(true, "Revoked Successfully");
-       }else if(leaveType == LeaveTypes.SICK){
-           sickLeave = sickLeave +  leaveDays;
-           emp.setSickLeave(sickLeave);
-           leave.setStatus(LeaveStatus.REVOKED);
+            return new Response(true, REVOKE_SUCCESS_MESSAGE);
+        }else if(leaveType == LeaveTypes.SICK){
+            sickLeave = sickLeave +  leaveDays;
+            emp.setSickLeave(sickLeave);
+            leave.setStatus(LeaveStatus.REVOKED);
 
-           employeeRepo.save(emp);
-           leaveRequestRepository.save(leave);
+            employeeRepo.save(emp);
+            leaveRequestRepository.save(leave);
 
-           saveAuditForUpdate(leaveId, employeeId, "Revoked");
+            saveAuditForUpdate(leaveId, employeeId, STATUS_REVOKED);
 
-           return new Response(true, "Revoked Successfully");
-       }
-
-
-       return new Response(false , "Leave Type is Invalid");
+            return new Response(true, REVOKE_SUCCESS_MESSAGE);
+        }
 
 
+        return new Response(false , "Leave Type is Invalid");
 
 
-   }
+
+
+    }
 
     public List<Employee> getReportees(int managerId) {
         return employeeRepo.findEmployeesByManagerId(managerId);
@@ -303,8 +306,9 @@ public class LeaveRequestService {
                 return new Response(false,"You can not approve your own leave") ;
             }
 
-              // Approve
+            // Approve
             leaves.get().setStatus(LeaveStatus.APPROVED);
+            leaveRequestRepository.save(leave);
             saveAuditForUpdate(leaveId,
                     managerId,
                     "Approved");
@@ -319,7 +323,7 @@ public class LeaveRequestService {
     public RejectResponse rejected(int managerId){
 
         RejectResponse rejectResponse = new RejectResponse();
-        rejectResponse.setKey("Rejected");
+        rejectResponse.setKey(STATUS_REJECTED);
         rejectResponse.setHref("/reject/{leave_id}");
         List<Employee> ems = employeeRepo.findEmployeesByManagerId(managerId);
         rejectResponse.setLeaves(ems.stream()
@@ -341,7 +345,7 @@ public class LeaveRequestService {
                     .orElseThrow(() -> new EmployeeNotFoundException(leave.getEmployee()));
 
             LocalDate startDate = leave.getStartDate();
-           LocalDate endDate = leave.getEndDate();
+            LocalDate endDate = leave.getEndDate();
 
 
             int leaveDays = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
@@ -361,9 +365,9 @@ public class LeaveRequestService {
             employeeRepo.save(employee);
             leaveRequestRepository.save(leave);
 
-            saveAuditForUpdate(leaveId, managerId, "Rejected");
+            saveAuditForUpdate(leaveId, managerId, STATUS_REJECTED);
 
-            return new Response(true, "Rejected");
+            return new Response(true,  STATUS_REJECTED);
         }
 
         return new Response(false, "Leave_id doesn't exist");

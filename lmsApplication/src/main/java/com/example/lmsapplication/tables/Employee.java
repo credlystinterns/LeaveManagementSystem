@@ -3,6 +3,8 @@ package com.example.lmsapplication.tables;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

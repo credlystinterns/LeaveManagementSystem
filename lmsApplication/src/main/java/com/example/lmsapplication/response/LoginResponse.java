@@ -12,7 +12,7 @@ public class LoginResponse{
     private String key;
     private String href;
     private String token;
-    s
+
 
     private List<AvailableAction> availableActionList;
 }

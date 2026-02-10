@@ -11,6 +11,7 @@ import com.example.lmsapplication.service.FetchEmployee;
 import com.example.lmsapplication.service.LeaveRequestService;
 import com.example.lmsapplication.tables.Employee;
 import com.example.lmsapplication.tables.Leaves;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,7 +55,7 @@ public class MainController {
 
     @PostMapping("/apply")
     public LeaveRequestService.Response applyLeave(@RequestHeader("Authorization") String authorization,
-                               @RequestBody LeaveRequest leaveRequest) {
+                               @RequestBody @Valid LeaveRequest leaveRequest) {
         Employee employee  = requireEmployee(authorization);
         return leaveRequestService.applyLeave(employee.getEmployeeId(),leaveRequest);
     }

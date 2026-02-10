@@ -7,6 +7,7 @@ import com.example.lmsapplication.exception.SessionNotFoundException;
 import com.example.lmsapplication.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -28,6 +29,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND
         );
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+
+        String message = ex.getBindingResult()
+                .getFieldError()
+                .getDefaultMessage();
+
+        return new ResponseEntity<>(
+                new ErrorResponse(400, message),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception e) {
