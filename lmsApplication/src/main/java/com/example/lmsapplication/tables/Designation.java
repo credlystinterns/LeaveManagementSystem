@@ -3,12 +3,15 @@ package com.example.lmsapplication.tables;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "designation")
 public class Designation {
     @Id
@@ -17,7 +20,8 @@ public class Designation {
 
     private String designationName;
 
-    @OneToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    @OneToMany(mappedBy = "designation")
+    Set<Employee>employeeSet;
+
+
 }

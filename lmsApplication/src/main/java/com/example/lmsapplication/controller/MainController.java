@@ -1,5 +1,6 @@
 package com.example.lmsapplication.controller;
 
+import com.example.lmsapplication.requisites.ChangeRequest;
 import com.example.lmsapplication.requisites.LeaveRequest;
 import com.example.lmsapplication.requisites.LeaveHistory;
 import com.example.lmsapplication.requisites.Requests;
@@ -9,9 +10,11 @@ import com.example.lmsapplication.response.RejectResponse;
 import com.example.lmsapplication.response.RevokeResponse;
 import com.example.lmsapplication.service.FetchEmployee;
 import com.example.lmsapplication.service.LeaveRequestService;
+import com.example.lmsapplication.service.UpdateService;
 import com.example.lmsapplication.tables.Employee;
 import com.example.lmsapplication.tables.Leaves;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +26,12 @@ public class MainController {
     private final LeaveRequestService leaveRequestService;
     private final FetchEmployee fetchEmployee;
 
+    private final UpdateService updateService;
 
-    public MainController(LeaveRequestService leaveRequestService, FetchEmployee fetchEmployee) {
+    public MainController(LeaveRequestService leaveRequestService, FetchEmployee fetchEmployee,UpdateService updateService) {
         this.leaveRequestService = leaveRequestService;
         this.fetchEmployee = fetchEmployee;
+        this.updateService = updateService;
 
     }
 
@@ -114,5 +119,17 @@ public class MainController {
                                                   @PathVariable Integer leaveId) {
         Employee employee = requireEmployee(authorization);
         return leaveRequestService.rejectance(leaveId,employee.getEmployeeId());
+    }
+
+    @PutMapping("/designation")
+    public ResponseEntity<String> updateDesignation(@RequestHeader("Authorization")String token, ChangeRequest changeDepartmentRequest){
+        Employee employee = requireEmployee(token);
+        return ResponseEntity.ok(updateService.updateDesignation(employee,changeDepartmentRequest.getName()));
+    }
+
+    @PutMapping("/techstack")
+    public ResponseEntity<String> updateTechStack(@RequestHeader("Authorization")String token,ChangeRequest changeTechStackRequest){
+        Employee employee = requireEmployee(token);
+        return ResponseEntity.ok(updateService.updateTechStack(employee,changeTechStackRequest.getName()));
     }
 }

@@ -39,5 +39,17 @@ public class Employee {
     @Column(name = "casual_leave")
     private Integer casualLeave;
 
+    @ManyToOne
+    @JoinColumn(name = "designation_id")
+    private Designation designation;
+
+    @ManyToMany
+    @JoinTable(
+            name = "skills",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "tech_stack_id")
+    )
+    private List<TechStack>skills;
+
 
 }
