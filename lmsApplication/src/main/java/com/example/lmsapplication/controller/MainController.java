@@ -121,14 +121,14 @@ public class MainController {
         return leaveRequestService.rejectance(leaveId,employee.getEmployeeId());
     }
 
-    @PutMapping("/designation")
-    public ResponseEntity<String> updateDesignation(@RequestHeader("Authorization")String token, ChangeRequest changeDepartmentRequest){
+    @PostMapping("/designation")
+    public ResponseEntity<String> updateDesignation(@RequestHeader("Authorization")String token, @RequestBody ChangeRequest changeDepartmentRequest){
         Employee employee = requireEmployee(token);
         return ResponseEntity.ok(updateService.updateDesignation(employee,changeDepartmentRequest.getName()));
     }
 
-    @PutMapping("/techstack")
-    public ResponseEntity<String> updateTechStack(@RequestHeader("Authorization")String token,ChangeRequest changeTechStackRequest){
+    @PostMapping("/techstack")
+    public ResponseEntity<String> updateTechStack(@RequestHeader("Authorization")String token,@RequestBody ChangeRequest changeTechStackRequest){
         Employee employee = requireEmployee(token);
         return ResponseEntity.ok(updateService.updateTechStack(employee,changeTechStackRequest.getName()));
     }

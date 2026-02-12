@@ -27,21 +27,34 @@ public class UpdateService {
     }
 
     public String updateDesignation(Employee emp1,String designation){
-        Designation des = Designation.builder()
-                .designationName(designation)
-                .build();
-        emp1.setDesignation(des);
-        return "Updated  Successfully";
+        Optional<Designation>  des = designationRepo.findByDesignationName(designation);
+
+        if(des.isPresent()){
+            emp1.setDesignation(des.get());
+            employeeRepo.save(emp1);
+
+            return "Updated  Successfully";
+
+        }
+        else{
+            return "No such Designation.";
+        }
+
     }
 
     public String updateTechStack(Employee emp1,String techStack){
         List<TechStack>old = emp1.getSkills();
-        TechStack e = TechStack.builder()
-                .techStackName(techStack)
-                .build();
-        old.add(e);
-        emp1.setSkills(old);
-        return "Skills added";
+
+        Optional<TechStack> e = techStackRepo.findByTechStackName(techStack);
+        if(e.isPresent()){
+            old.add(e.get());
+            emp1.setSkills(old);
+            employeeRepo.save(emp1);
+            return "Skills added";
+        }
+        else{
+            return "No such skill.";
+        }
     }
 
 }

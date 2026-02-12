@@ -7,8 +7,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Builder
 @Table(name = "tech_stack")
